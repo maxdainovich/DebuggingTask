@@ -15,7 +15,8 @@ var posCollection = [
     { _id: '5c5d86fcd5c001080f576519', name: 'POS 2' }
 ];
 
-const mapToObjectId = array => array.map(id => ObjectID(id));
+const mapToObjectId = array => array.filter(id => !!id)
+                                    .map(id => ObjectID(id));
 
 const getReducer = filter => (accumulator, report) => {
     if (accumulator.indexOf(report[filter]) === -1) {
@@ -28,9 +29,11 @@ function findReports() {
 
     var existingReports = reportsRepository.getReports();
 
+    var branchesReduced = existingReports.reduce(getReducer('branch_id'), []);
+    var posReduced = existingReports.reduce(getReducer('pos_id'), []);
     var results = {
-        branch: mapToObjectId(existingReports.reduce(getReducer('branch_id'), [])),
-        pos: mapToObjectId(existingReports.reduce(getReducer('pos_id'), []))
+        branch: mapToObjectId(branchesReduced),
+        pos: mapToObjectId(posReduced)
     };
 
     var branches = branchCollection.filter(function (branch) {
